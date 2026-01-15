@@ -171,19 +171,19 @@
 				setStatusMode('progress');
 
 				try {
-					// 1. Fetch the compressed .gz file
-					const response = await fetch(`${GODOT_CONFIG.executable}.wasm.gz`);
-					if (!response.ok) throw new Error("Could not fetch the compressed game file.");
+					// 1. Fetch the compressed .gz file (matching your manual compression naming)
+					const response = await fetch(`${GODOT_CONFIG.executable}.gz`);
+					if (!response.ok) throw new Error(`Could not fetch the compressed game file: ${GODOT_CONFIG.executable}.gz`);
 
-					// 2. Decompress the stream
+					// 2. Decompress the stream using native browser API
 					const ds = new DecompressionStream('gzip');
 					const decompressedStream = response.body.pipeThrough(ds);
 					
-					// 3. Create a Blob and a local URL for the engine to use
+					// 3. Create a Blob and a local URL for the engine to execute
 					const blob = await new Response(decompressedStream).blob();
 					const wasmUrl = URL.createObjectURL(blob);
 
-					// 4. Start the engine using the decompressed data
+					// 4. Start the engine using the decompressed data URL
 					await engine.startGame({
 						'executable': wasmUrl,
 						'onProgress': function (current, total) {
